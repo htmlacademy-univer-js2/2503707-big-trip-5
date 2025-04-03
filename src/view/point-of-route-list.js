@@ -1,19 +1,17 @@
-import { createElement } from '../render.js';
+import { createElement } from '../render';
 
-function createPointTemplate() {
-  return `
-        <ul class="trip-events__list"></ul>`;
-}
+const createPointRouteListTemplate = () => '<ul class="trip-events__list"></ul>';
 
-export default class PointsList {
+export default class PointRouteList {
   getTemplate() {
-    return createPointTemplate();
+    return createPointRouteListTemplate();
   }
 
   getElement() {
     if (!this.element) {
       this.element = createElement(this.getTemplate());
     }
+
     return this.element;
   }
 
