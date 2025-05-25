@@ -19,4 +19,15 @@ const FILTER_TYPES = {
   PAST:'past',
 };
 
-export {EVENT_TYPES, CITIES, DESCRIPTIONS, OFFERS, FILTER_TYPES};
+const SORT_TYPES = {
+  DAY: 'day',
+  TIME: 'time',
+  PRICE: 'price',
+};
+
+const MODE = {
+  DEFAULT: 'DEFAULT',
+  EDITING: 'EDITING',
+};
+
+export {EVENT_TYPES, CITIES, DESCRIPTIONS, OFFERS, FILTER_TYPES, SORT_TYPES, MODE};
