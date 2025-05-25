@@ -1,6 +1,6 @@
-const EVENT_TYPES = ['Taxi', 'Bus', 'Train', 'Ship', 'Drive', 'Flight', 'Check-in', 'Sightseeing', 'Restaurant'];
+const EVENT_TYPES = ['taxi', 'bus', 'train', 'ship', 'drive', 'flight', 'check-in', 'sightseeing', 'restaurant'];
 
-const CITIES = ['Amsterdam', 'Chamonix', 'Geneva', 'Rome', 'Hamburg', 'Munich', 'Copenhagen'];
+const CITIES = ['Amsterdam', 'Chamonix', 'Geneva', 'Rome', 'Hamburg', 'Munich', 'Copenhagen', 'Paris', 'Moscow'];
 
 const DESCRIPTIONS = [
   'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
@@ -9,8 +9,6 @@ const DESCRIPTIONS = [
   'Aliquam id orci ut lectus varius viverra.',
   'Nullam nunc ex, convallis sed finibus eget, sollicitudin eget ante.'
 ];
-
-const OFFERS = ['Rent a car', 'Add luggage', 'Add breakfast', 'Switch to business', 'Upgrade to business class'];
 
 const FILTER_TYPES = {
   EVERYTHING:'everything',
@@ -30,4 +28,4 @@ const MODE = {
   EDITING: 'EDITING',
 };
 
-export {EVENT_TYPES, CITIES, DESCRIPTIONS, OFFERS, FILTER_TYPES, SORT_TYPES, MODE};
+export {EVENT_TYPES, CITIES, DESCRIPTIONS, FILTER_TYPES, SORT_TYPES, MODE};
