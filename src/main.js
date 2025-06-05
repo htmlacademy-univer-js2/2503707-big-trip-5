@@ -1,38 +1,43 @@
-import PointListPresenter from './presenter/point-list-presenter.js';
-import PointsListModel from './model/points-list-model.js';
-import FilterPresenter from './presenter/filter-presenter.js';
+import BoardPresenter from './presenter/board-presenter';
+import FilterPresenter from './presenter/filter-presenter';
+import ButtonPointPresenter from './presenter/button-point-presenter.js';
+import TripInfoPresenter from './presenter/trip-info-presenter';
 import FilterModel from './model/filter-model.js';
-import NewPointButtonPresenter from './presenter/new-point-button-presenter.js';
-import TripInfoPresenter from './presenter/trip-info-presenter.js';
-import PointsApiService from './point-api-service.js';
-import { AUTHORIZATION, END_POINT } from './const.js';
+import PointsListModel from './model/points-list-model';
+import { AUTHORIZATION, API_URL } from './const.js';
+import EventsApiService from './service/events-api-service';
 
-const pointsListModel = new PointsListModel({pointsApiService: new PointsApiService(END_POINT, AUTHORIZATION)});
+(async () => {
+  const eventsApiService = new EventsApiService(API_URL, AUTHORIZATION);
+  const pointsListModel = new PointsListModel({ pointApiService: eventsApiService });
 
-const filterModel = new FilterModel();
+  const buttonPointPresenter = new ButtonPointPresenter({
+    container: document.querySelector('.trip-main')
+  });
 
-const tripInfoPresenter = new TripInfoPresenter({
-  container: document.querySelector('.trip-main'),
-  pointsListModel: pointsListModel
-});
+  const filterModel = new FilterModel();
 
-const newPointButtonPresenter = new NewPointButtonPresenter({
-  container: document.querySelector('.trip-main')
-});
+  const boardPresenter = new BoardPresenter({
+    eventsContainer: document.querySelector('.trip-events'),
+    filterModel: filterModel,
+    pointsModel: pointsListModel,
+    buttonPointPresenter: buttonPointPresenter,
+  });
 
-const pointsListPresenter = new PointListPresenter({
-  tripEvents: document.querySelector('.trip-events'),
-  filterModel,
-  pointsListModel,
-  newPointButtonPresenter
-});
+  const filterPresenter = new FilterPresenter({
+    filterContainer: document.querySelector('.trip-controls__filters'),
+    filterModel: filterModel,
+    pointsModel: pointsListModel
+  });
 
-new FilterPresenter({
-  filterContainer: document.querySelector('.trip-controls__filters'),
-  filterModel,
-  pointsListModel
-}).init();
-newPointButtonPresenter.init({onNewPointButtonClick: pointsListPresenter.onNewPointButtonClick});
-pointsListPresenter.init();
-pointsListModel.init();
-tripInfoPresenter.init();
+  const tripInfoContainer = document.querySelector('.trip-main');
+  const tripInfoPresenter = new TripInfoPresenter({
+    container: tripInfoContainer,
+    pointsModel: pointsListModel
+  });
+
+  filterPresenter.init();
+  await boardPresenter.init();
+  tripInfoPresenter.init();
+  buttonPointPresenter.init({ onNewPointButtonClick: boardPresenter.handleNewPointButtonClick });
+})();

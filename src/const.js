@@ -1,51 +1,55 @@
-const EVENT_TYPES = ['taxi', 'bus', 'train', 'ship', 'drive', 'flight', 'check-in', 'sightseeing', 'restaurant'];
+import { isFutureEvent, isPastEvent, isPresentEvent } from './date-utils.js';
 
-const FILTER_TYPES = {
+const AUTHORIZATION = 'Basic k1s2u3s4h5a';
+const API_URL = 'https://24.objects.htmlacademy.pro/big-trip';
+
+const METHOD_TYPE = {
+  GET: 'GET',
+  PUT: 'PUT',
+  POST: 'POST',
+  DELETE: 'DELETE',
+};
+
+const FILTER_TYPE = {
   EVERYTHING: 'EVERYTHING',
   FUTURE: 'FUTURE',
   PRESENT: 'PRESENT',
-  PAST: 'PAST'
+  PAST: 'PAST',
 };
 
-const EMPTY_LIST_MESSAGES = {
-  [FILTER_TYPES.EVERYTHING]: 'Click New Event to create your first point',
-  [FILTER_TYPES.PAST]: 'There are no past events now',
-  [FILTER_TYPES.PRESENT]: 'There are no present events now',
-  [FILTER_TYPES.FUTURE]: 'There are no future events now'
+
+const LIST_MESSAGE = {
+  [FILTER_TYPE.EVERYTHING]: 'Click New Event to create your first point',
+  [FILTER_TYPE.FUTURE]: 'There are no future events now',
+  [FILTER_TYPE.PRESENT]: 'There are no present events now',
+  [FILTER_TYPE.PAST]: 'There are no past events now',
 };
 
-const SORT_TYPES = {
+const FILTER = {
+  [FILTER_TYPE.EVERYTHING]: (points) => points,
+  [FILTER_TYPE.FUTURE]: (points) => points.filter((point) => isFutureEvent(point.dateFrom)),
+  [FILTER_TYPE.PRESENT]: (points) => points.filter((point) => isPresentEvent(point.dateFrom, point.dateTo)),
+  [FILTER_TYPE.PAST]: (points) => points.filter((point) => isPastEvent(point.dateTo)),
+};
+
+const SORT_TYPE = {
   DAY: 'day',
   TIME: 'time',
   PRICE: 'price',
 };
 
-const MODE = {
+const MODE_TYPE = {
   DEFAULT: 'DEFAULT',
   EDITING: 'EDITING',
 };
 
-const ACTIONS = {
+const EVENT_TYPE = ['taxi', 'bus', 'train', 'ship', 'drive', 'flight', 'check-in', 'sightseeing', 'restaurant'];
+
+
+const ACTION_TYPE = {
   UPDATE_POINT: 'UPDATE_POINT',
   DELETE_POINT: 'DELETE_POINT',
   ADD_POINT: 'ADD_POINT',
-};
-
-const UPDATE_TYPES = {
-  PATCH: 'PATCH',
-  MINOR: 'MINOR',
-  MAJOR: 'MAJOR',
-  INIT: 'INIT',
-};
-
-const EMPTY_POINT = {
-  type: 'flight',
-  destination: null,
-  dateFrom: null,
-  dateTo: null,
-  basePrice: 0,
-  offers: [],
-  isFavorite: false,
 };
 
 const FORM_TYPE = {
@@ -53,48 +57,37 @@ const FORM_TYPE = {
   EDIT: 'EDIT',
 };
 
-const METHOD = {
-  GET: 'GET',
-  PUT: 'PUT',
-  POST: 'POST',
-  DELETE: 'DELETE',
+const BLANK_POINT = {
+  type: 'flight',
+  dateFrom: '',
+  dateTo: '',
+  destination: null,
+  basePrice: 0,
+  offers: [],
+  isFavorite: false,
+  price: 0
 };
 
-const TIME_LIMIT = {
-  LOWER_LIMIT: 200,
-  UPPER_LIMIT: 500,
+const UPDATE_TYPE = {
+  PATCH: 'PATCH',
+  MINOR: 'MINOR',
+  MAJOR: 'MAJOR',
+  INIT: 'INIT',
+  ERROR: 'ERROR',
 };
-
-const FLATPICKR_CONFIG = {
-  dateFormat: 'd/m/y H:i',
-  enableTime: true,
-  locale: {
-    firstDayOfWeek: 1,
-  },
-  // eslint-disable-next-line camelcase
-  time_24hr: true,
-};
-
-const AUTHORIZATION = 'Basic fra114a3i8a7t0rr';
-
-const END_POINT = 'https://21.objects.htmlacademy.pro/big-trip';
-
-const CITIES_LENGTH_BORDER = 3;
 
 export {
-  EVENT_TYPES,
-  FILTER_TYPES,
-  EMPTY_LIST_MESSAGES,
-  SORT_TYPES,
-  MODE,
-  ACTIONS,
-  UPDATE_TYPES,
-  EMPTY_POINT,
-  FORM_TYPE,
-  METHOD,
   AUTHORIZATION,
-  END_POINT,
-  TIME_LIMIT,
-  CITIES_LENGTH_BORDER,
-  FLATPICKR_CONFIG,
+  API_URL,
+  METHOD_TYPE,
+  FILTER_TYPE,
+  LIST_MESSAGE,
+  FILTER,
+  SORT_TYPE,
+  MODE_TYPE,
+  EVENT_TYPE,
+  ACTION_TYPE,
+  FORM_TYPE,
+  BLANK_POINT,
+  UPDATE_TYPE
 };
