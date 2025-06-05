@@ -1,17 +1,16 @@
 import Observable from '../framework/observable.js';
-import { updateItem } from '../utils/point-utils.js';
-import { adaptToClient } from '../utils/adapter.js';
-import { UPDATE_TYPES } from '../const.js';
+import {updateItem} from '../utils';
+import {UPDATE_TYPE} from '../const.js';
 
-export default class PointsListModel extends Observable {
+export default class PointModel extends Observable {
+  #pointApiService = null;
   #points = [];
-  #offers = [];
+  #offersByType = {};
   #destinations = [];
-  #pointsApiService = null;
 
-  constructor({pointsApiService}) {
+  constructor({ pointApiService }) {
     super();
-    this.#pointsApiService = pointsApiService;
+    this.#pointApiService = pointApiService;
   }
 
   get points() {
@@ -19,58 +18,78 @@ export default class PointsListModel extends Observable {
   }
 
   get offers() {
-    return this.#offers;
+    return this.#offersByType;
   }
 
   get destinations() {
     return this.#destinations;
   }
 
-  async updatePoint(updateType, point) {
+  async init() {
     try {
-      const response = await this.#pointsApiService.updatePoint(point);
-      const updatedPoint = adaptToClient(response);
-      this.#points = updateItem(this.#points, updatedPoint);
-      this._notify(updateType, updatedPoint);
+      const [points, offers, destinations] = await Promise.all([
+        this.#pointApiService.getPoints(),
+        this.#pointApiService.getOffers(),
+        this.#pointApiService.getDestinations(),
+      ]);
+
+      this.#offersByType = this.#transformOffers(offers);
+      this.#destinations = destinations;
+      this.#points = points.map(this.#adaptPoint);
+      this._notify(UPDATE_TYPE.INIT);
     } catch (error) {
-      throw new Error('Can\'t update point');
+      this.#points = [];
+      this.#offersByType = {};
+      this.#destinations = [];
+      throw error;
     }
   }
 
-  async addPoint(updateType, point) {
-    try {
-      const response = await this.#pointsApiService.addPoint(point);
-      const newPoint = adaptToClient(response);
-      this.#points = [newPoint, ...this.#points];
-      this._notify(updateType, newPoint);
-    } catch(err) {
-      throw new Error('Can\'t add point');
+  #transformOffers(rawOffers) {
+    if (!Array.isArray(rawOffers)) {
+      return {};
     }
+    return rawOffers.reduce((accumulator, group) => {
+      accumulator[group.type] = group.offers;
+      return accumulator;
+    }, {});
+  }
+
+  #adaptPoint = (point) => {
+    const adaptedPoint = {
+      ...point,
+      price: point['base_price'],
+      dateFrom: new Date(point['date_from']),
+      dateTo: new Date(point['date_to']),
+      isFavorite: point['is_favorite'],
+    };
+
+    delete adaptedPoint['base_price'];
+    delete adaptedPoint['date_from'];
+    delete adaptedPoint['date_to'];
+    delete adaptedPoint['is_favorite'];
+    return adaptedPoint;
+  };
+
+  async addPoint(updateType, update) {
+    const newPointRaw = await this.#pointApiService.addPoint(update);
+    const newPointAdapted = this.#adaptPoint(newPointRaw);
+    this.#points = [newPointAdapted, ...this.#points];
+    this._notify(updateType, newPointAdapted);
+    return newPointAdapted;
+  }
+
+  async updatePoint(updateType, point) {
+    const updatedRaw = await this.#pointApiService.updatePoint(point);
+    const updatedPoint = this.#adaptPoint(updatedRaw);
+    this.#points = updateItem(this.#points, updatedPoint);
+    this._notify(updateType, updatedPoint);
+    return updatedPoint;
   }
 
   async deletePoint(updateType, point) {
-    try {
-      await this.#pointsApiService.deletePoint(point);
-      this.#points = this.#points.filter((pointItem) => pointItem.id !== point.id);
-      this._notify(updateType);
-    } catch(err) {
-      throw new Error('Can\'t delete point');
-    }
-  }
-
-  async init() {
-    let isError = false;
-    try {
-      const points = await this.#pointsApiService.points;
-      this.#points = points.map(adaptToClient);
-      this.#destinations = await this.#pointsApiService.destinations;
-      this.#offers = await this.#pointsApiService.offers;
-    } catch(err) {
-      this.#points = [];
-      this.#offers = [];
-      this.#destinations = [];
-      isError = true;
-    }
-    this._notify(UPDATE_TYPES.INIT, { isError });
+    await this.#pointApiService.deletePoint(point);
+    this.#points = this.#points.filter((item) => item.id !== point.id);
+    this._notify(updateType, point);
   }
 }
